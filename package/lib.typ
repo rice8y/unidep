@@ -1,6 +1,6 @@
 #import "@preview/cetz:0.4.2"
 
-#let _wasm-plugin = plugin("conllu_plugin.wasm")
+#let _wasm-plugin = plugin("unidep_plugin.wasm")
 
 #let dependency-tree(
   conllu-text, 
@@ -19,7 +19,7 @@
   show-root: true,
   highlights: (:) 
 ) = {
-  let raw-json = _wasm-plugin.layout_conllu(bytes(conllu-text))
+  let raw-json = _wasm-plugin.layout_unidep(bytes(conllu-text))
   let sentences = json(raw-json)
 
   for sentence in sentences {

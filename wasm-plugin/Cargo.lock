@@ -3,15 +3,6 @@
 version = 4
 
 [[package]]
-name = "conllu-plugin"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_json",
- "wasm-minimal-protocol",
-]
-
-[[package]]
 name = "itoa"
 version = "1.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -100,6 +91,15 @@ name = "unicode-ident"
 version = "1.0.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75"
+
+[[package]]
+name = "unidep-plugin"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "wasm-minimal-protocol",
+]
 
 [[package]]
 name = "venial"

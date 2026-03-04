@@ -48,7 +48,7 @@ struct Sentence {
 initiate_protocol!();
 
 #[wasm_func]
-pub fn layout_conllu(input: &[u8]) -> Vec<u8> {
+pub fn layout_unidep(input: &[u8]) -> Vec<u8> {
     let text = std::str::from_utf8(input).unwrap();
     let mut sentences: Vec<Sentence> = Vec::new();
     let mut current_tokens = Vec::new();

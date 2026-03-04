@@ -40,10 +40,10 @@ install:
 
   cp *.typ "$TARGET_DIR"
   
-  if [ -f "conllu_plugin.wasm" ]; then
-    cp conllu_plugin.wasm "$TARGET_DIR"
+  if [ -f "unidep_plugin.wasm" ]; then
+    cp unidep_plugin.wasm "$TARGET_DIR"
   else
-    echo "Warning: conllu_plugin.wasm not found in current directory."
+    echo "Warning: unidep_plugin.wasm not found in current directory."
     exit 1
   fi
 
