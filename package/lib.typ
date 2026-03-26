@@ -8,7 +8,7 @@
   level-height: 1.0,
   arc-roundness: 0.18,
   endpoint-spacing: 0.0,
-  endpoint-angle: 90,
+  endpoint-angle: none,
   tail-offset: 0.05,
   head-offset: 0.0,
   show-text: false,
