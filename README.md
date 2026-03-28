@@ -60,7 +60,7 @@ Renders one or more sentences from a CoNLL-U formatted string.
 - `conllu-text` (String): The raw text in CoNLL-U format.
 - `word-spacing` (Float): Horizontal distance between words. Default: `2.0`.
 - `level-height` (Float): Vertical height increment for each arc level. Default: `1.0`.
-- `arc-roundness` (Float): Controls the curvature of the bezier arcs. Lower values make arcs boxier; higher values make them more elliptical. Default: `0.18`.
+- `arc-roundness` (Float): Controls the curvature of the bezier arcs. Lower values make arcs steeper (more U-shaped); higher values make them more elliptical. Default: `0.18`.
 - `endpoint-spacing` (Float): Shifts arc endpoints horizontally to prevent multiple arrows pointing to the same token from perfectly overlapping. Default: `0.0`.
 - `endpoint-angle` (Angle/Float/None): The angle at which the arcs connect to the tokens. Accepts an angle (e.g., `90deg`), a number (e.g., `90`), or `none` to rely solely on `arc-roundness`. Default: `none`.
 - `tail-offset` (Float): Vertical offset for the tail (start point) of the dependency arc. Useful for preventing the tail from sticking out past the arrowhead when they connect closely. Default: `0.05`.
