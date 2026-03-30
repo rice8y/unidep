@@ -9,7 +9,7 @@ This package provides an elegant way to visualize dependency parsing results, sy
 Import the package and use the `dependency-tree` function. Pass your CoNLL-U text to it.
 
 ````typ
-#import "@preview/unidep:0.1.0": dependency-tree
+#import "@preview/unidep:0.1.1": dependency-tree
 #set page(width: auto, height: auto, margin: 3mm)
 
 #let sample-conllu = ```
