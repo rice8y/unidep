@@ -7,9 +7,11 @@
   word-spacing: 2.0, 
   level-height: 1.0,
   arc-roundness: 0.18,
-  endpoint-spacing: 0.0,
-  endpoint-angle: none,
-  tail-offset: 0.05,
+  tail-spacing: none,
+  head-spacing: none,
+  tail-angle: 90deg,
+  head-angle: 90deg,
+  tail-offset: 0.1,
   head-offset: 0.0,
   show-text: false,
   show-upos: false,
@@ -19,6 +21,28 @@
   show-root: true,
   highlights: (:) 
 ) = {
+  let _resolve-angle(value) = if value == none {
+    none
+  } else if type(value) == int or type(value) == float {
+    value * 1deg
+  } else {
+    value
+  }
+
+  let resolved-tail-spacing = if tail-spacing == none { 0.0 } else { tail-spacing }
+  let resolved-head-spacing = if head-spacing == none { 0.0 } else { head-spacing }
+  let resolved-tail-angle = _resolve-angle(tail-angle)
+  let resolved-head-angle = _resolve-angle(head-angle)
+  let _same-arc(a, b) = (
+    a.dep_id == b.dep_id and
+    a.start_idx == b.start_idx and
+    a.end_idx == b.end_idx and
+    a.label == b.label and
+    a.level == b.level and
+    a.is_head_left == b.is_head_left and
+    a.is_enhanced == b.is_enhanced
+  )
+
   let raw-json = _wasm-plugin.layout_unidep(bytes(conllu-text))
   let sentences = json(raw-json)
 
@@ -60,20 +84,20 @@
       if show-root {
         let root-y = float(global-max-level + 1) * float(level-height)
         for root in sentence.roots {
-          let x = float(root.idx) * float(word-spacing)
+          let base-x = float(root.idx) * float(word-spacing)
           
           let is-highlighted = root.dep_id in highlights
           let root-color = if is-highlighted { highlights.at(root.dep_id) } else { black }
           let root-width = if is-highlighted { 1.5pt } else { 0.75pt }
           
           line(
-            (x, root-y), (x, 0.3),
+            (base-x, root-y), (base-x, 0.3),
             stroke: (paint: root-color, thickness: root-width),
             mark: (end: "stealth", fill: root-color, scale: 0.75),
             name: "root-" + str(root.idx)
           )
           content(
-            (x, root-y + 0.15),
+            (base-x, root-y + 0.15),
             box(
               fill: white, inset: (x: 2pt, y: 1pt), radius: 2pt,
               text(size: 8pt, weight: "bold", fill: root-color, root.label)
@@ -85,40 +109,89 @@
       for arc in sentence.arcs {
         let x-start = float(arc.start_idx) * float(word-spacing)
         let x-end = float(arc.end_idx) * float(word-spacing)
+        let start-has-arrow = not arc.is_head_left
+        let end-has-arrow = arc.is_head_left
         
+        let start-slot = 1
+        let end-slot = 1
+        let start-count = 1
+        let end-count = 1
+
+        for other in sentence.arcs {
+          if not _same-arc(other, arc) {
+            let other-start-has-arrow = not other.is_head_left
+            let other-end-has-arrow = other.is_head_left
+            let same-start-side = (
+              other.start_idx == arc.start_idx and
+              other-start-has-arrow == start-has-arrow
+            )
+            let same-end-side = (
+              other.end_idx == arc.end_idx and
+              other-end-has-arrow == end-has-arrow
+            )
+
+            if same-start-side and other.level < arc.level {
+              start-slot += 1
+            }
+            if same-end-side and other.level < arc.level {
+              end-slot += 1
+            }
+            if same-start-side {
+              start-count += 1
+            }
+            if same-end-side {
+              end-count += 1
+            }
+          }
+        }
+
         let peak-y = float(arc.level) * float(level-height)
         let base-y = 0.3
         
         let ctrl-y = (peak-y - 0.25 * base-y) / 0.75
-        
-        let dir = if x-end > x-start { 1.0 } else { -1.0 }
-        
-        let parsed-angle = if type(endpoint-angle) == int or type(endpoint-angle) == float {
-          endpoint-angle * 1deg
+        let start-tail-lane = start-count - start-slot + 1
+        let end-tail-lane = end-count - end-slot + 1
+        let tail-shift-start = float(start-tail-lane) * float(resolved-tail-spacing)
+        let tail-shift-end = float(end-tail-lane) * float(resolved-tail-spacing)
+        let head-shift-start = float(start-slot) * float(resolved-head-spacing)
+        let head-shift-end = float(end-slot) * float(resolved-head-spacing)
+
+        let adj-x-start = if start-has-arrow {
+          x-start + head-shift-start
         } else {
-          endpoint-angle
+          x-start + tail-shift-start
         }
-        
-        let offset = if parsed-angle == none {
-          (x-end - x-start) * arc-roundness
-        } else if parsed-angle == 90deg {
-          0.0
+        let adj-x-end = if end-has-arrow {
+          x-end - head-shift-end
         } else {
-          dir * (ctrl-y - base-y) / calc.tan(parsed-angle)
+          x-end - tail-shift-end
         }
-        
-        let shift-amount = float(arc.level) * float(endpoint-spacing) 
-        let adj-x-start = x-start + shift-amount
-        let adj-x-end = x-end - shift-amount
-        
+
         let start-y = if arc.is_head_left { base-y + tail-offset } else { base-y + head-offset }
         let end-y   = if arc.is_head_left { base-y + head-offset } else { base-y + tail-offset }
+        let span-offset = (adj-x-end - adj-x-start) * arc-roundness
+        let start-angle = if start-has-arrow { resolved-head-angle } else { resolved-tail-angle }
+        let end-angle = if end-has-arrow { resolved-head-angle } else { resolved-tail-angle }
+        let start-offset = if start-angle == none {
+          span-offset
+        } else if start-angle == 90deg {
+          0.0
+        } else {
+          (ctrl-y - start-y) / calc.tan(start-angle)
+        }
+        let end-offset = if end-angle == none {
+          span-offset
+        } else if end-angle == 90deg {
+          0.0
+        } else {
+          (ctrl-y - end-y) / calc.tan(end-angle)
+        }
 
         let start-pt = (adj-x-start, start-y)
         let end-pt = (adj-x-end, end-y)
 
-        let ctrl-pt-start = (adj-x-start + offset, ctrl-y)
-        let ctrl-pt-end = (adj-x-end - offset, ctrl-y)
+        let ctrl-pt-start = (adj-x-start + start-offset, ctrl-y)
+        let ctrl-pt-end = (adj-x-end - end-offset, ctrl-y)
         
         let is-highlighted = arc.dep_id in highlights
         
