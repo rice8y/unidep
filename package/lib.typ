@@ -21,6 +21,8 @@
   show-root: true,
   highlights: (:) 
 ) = {
+  show text: it => align(horizon, it)
+
   let _resolve-angle(value) = if value == none {
     none
   } else if type(value) == int or type(value) == float {
