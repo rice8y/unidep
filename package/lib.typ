@@ -13,6 +13,8 @@
   head-angle: 90deg,
   tail-offset: 0.1,
   head-offset: 0.0,
+  text-gap: 0.5em,
+  sentence-gap: 1em,
   show-text: false,
   show-upos: false,
   show-xpos: false,
@@ -22,6 +24,7 @@
   highlights: (:) 
 ) = {
   show text: it => align(horizon, it)
+  show par: it => align(top, it)
 
   let _resolve-angle(value) = if value == none {
     none
@@ -49,12 +52,7 @@
   let sentences = json(raw-json)
 
   for sentence in sentences {
-    if show-text and sentence.text != "" {
-      align(center, strong(sentence.text))
-      v(0.5em)
-    }
-
-    cetz.canvas({
+    let tree = cetz.canvas({
       import cetz.draw: *
 
       for (i, token) in sentence.tokens.enumerate() {
@@ -236,7 +234,16 @@
         )
       }
     })
+    if show-text and sentence.text != "" {
+      context {
+        let tree-width = measure(tree).width
+        box(width: tree-width, align(center, strong(sentence.text)))
+      }
+      v(text-gap)
+    }
+
+    tree
     
-    v(2em) 
+    v(sentence-gap) 
   }
 }
