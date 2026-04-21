@@ -37,6 +37,8 @@ You can display the original sentence text, lemmas, and part-of-speech tags (UPO
   sample-conllu, 
   show-text: true,
   word-spacing: 2.5, 
+  text-gap: 0.35em,
+  sentence-gap: 0.75em,
   show-upos: true,
   show-lemma: true,
   tail-offset: 0.0,
@@ -86,6 +88,8 @@ Renders one or more sentences from a CoNLL-U formatted string.
 - `head-angle` (Angle/Float/None): Connection angle for the arrowhead side of each arc. Default: `90deg`.
 - `tail-offset` (Float): Vertical offset for the tail (start point) of the dependency arc. Useful for fine-tuning the join near the source token. Default: `0.1`.
 - `head-offset` (Float): Vertical offset for the head (end point/arrowhead) of the dependency arc. Useful for fine-tuning the gap between the arrowhead and the token. Default: `0.0`.
+- `text-gap` (Relative Length): Vertical gap between the optional sentence text (`# text = ...`) and the dependency tree. Default: `0.5em`.
+- `sentence-gap` (Relative Length): Vertical gap inserted after each rendered sentence. Default: `1em`.
 - `show-text` (Bool): If `true`, displays the sentence text (extracted from `# text = ...` metadata) above the parsed tree. Default: `false`.
 - `show-upos` (Bool): If `true`, displays the Universal POS tag (column 4) below the word. Default: `false`.
 - `show-xpos` (Bool): If `true`, displays the language-specific POS tag (column 5) below the word. Default: `false`.
